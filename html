@@ -2,31 +2,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Cinematic Smart Planner</title>
+<title>Ultra Pro Smart Planner</title>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI;}
 body{
   height:100vh;
-  display:flex;
-  background:linear-gradient(135deg,#0f172a,#1e293b);
-  color:#fff;
   overflow:hidden;
+  color:#fff;
+  background:#0f172a;
 }
 
-/* Background animation */
+/* Cinematic gradient */
 .bg{
   position:absolute;
   width:200%;
   height:200%;
-  background:radial-gradient(circle at 20% 30%,#3b82f6,transparent),
-             radial-gradient(circle at 80% 70%,#9333ea,transparent);
-  animation:move 10s infinite alternate;
-  z-index:0;
+  background:
+    radial-gradient(circle at 20% 30%,#3b82f6,transparent),
+    radial-gradient(circle at 80% 70%,#9333ea,transparent),
+    radial-gradient(circle at 50% 50%,#22c55e,transparent);
+  animation:move 12s infinite alternate;
 }
 @keyframes move{
   from{transform:translate(0,0);}
-  to{transform:translate(-100px,-100px);}
+  to{transform:translate(-120px,-120px);}
 }
 
 /* Layout */
@@ -34,27 +34,26 @@ body{
   position:relative;
   z-index:2;
   display:flex;
-  width:100%;
+  height:100%;
 }
 
 /* Sidebar */
 .sidebar{
-  width:220px;
+  width:240px;
   backdrop-filter:blur(20px);
   background:rgba(255,255,255,0.1);
   padding:20px;
 }
-
 .sidebar h2{margin-bottom:20px;}
 .sidebar button{
   width:100%;
-  margin:10px 0;
+  margin:8px 0;
   padding:10px;
   border:none;
+  border-radius:8px;
   background:#3b82f6;
   color:white;
   cursor:pointer;
-  border-radius:8px;
 }
 
 /* Main */
@@ -62,35 +61,32 @@ body{
   flex:1;
   padding:20px;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+  grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
   gap:20px;
 }
 
-/* Cards */
+/* Card */
 .card{
-  backdrop-filter:blur(15px);
   background:rgba(255,255,255,0.1);
+  backdrop-filter:blur(20px);
   padding:20px;
   border-radius:15px;
-  box-shadow:0 10px 30px rgba(0,0,0,0.3);
   transition:transform 0.2s;
+  box-shadow:0 15px 40px rgba(0,0,0,0.3);
 }
 
-/* 3D hover */
+/* 3D tilt */
 .card:hover{
-  transform:rotateY(5deg) rotateX(5deg) scale(1.03);
+  transform:rotateY(8deg) rotateX(6deg) scale(1.03);
 }
 
 /* Task */
-input{
-  padding:10px;
-  width:70%;
-  border:none;
-  border-radius:5px;
+input,select{
+  padding:8px;
+  margin:5px 0;
 }
-
 button.add{
-  padding:10px;
+  padding:8px;
   background:#22c55e;
   border:none;
   color:white;
@@ -100,36 +96,43 @@ ul{list-style:none;margin-top:10px;}
 li{
   display:flex;
   justify-content:space-between;
-  margin-top:5px;
+  margin-top:6px;
 }
-
 .done{text-decoration:line-through;color:#aaa;}
 
 /* Timer */
 .timer{
-  font-size:40px;
+  font-size:35px;
   text-align:center;
 }
 
-/* Progress */
-.bar{
-  height:20px;
-  background:#444;
-  border-radius:10px;
-}
-.fill{
-  height:100%;
-  width:0%;
-  background:#3b82f6;
-  border-radius:10px;
+/* Circular progress */
+.circle{
+  width:120px;height:120px;
+  border-radius:50%;
+  background:conic-gradient(#3b82f6 0%,#444 0%);
+  display:flex;align-items:center;justify-content:center;
+  margin:auto;
 }
 
-/* Theme */
+/* Calendar */
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:5px;
+}
+.day{
+  padding:8px;
+  text-align:center;
+  background:rgba(255,255,255,0.1);
+  border-radius:5px;
+}
+
+/* Light theme */
 .light{
   background:#f1f5f9;
   color:#111;
 }
-
 </style>
 </head>
 
@@ -140,33 +143,52 @@ li{
 <div class="container">
 
 <div class="sidebar">
-  <h2>🎬 Planner</h2>
-  <button onclick="toggleTheme()">Toggle Theme</button>
+  <h2>🎬 Ultra Planner</h2>
+  <button onclick="toggleTheme()">🌙 Theme</button>
+  <button onclick="toggleSound()">🎵 Sound</button>
 </div>
 
 <div class="main">
 
+<!-- Tasks -->
 <div class="card">
 <h3>📝 Tasks</h3>
-<input id="taskInput" placeholder="New task">
+<input id="taskInput" placeholder="Task">
+<select id="priority">
+  <option>Low</option>
+  <option>Medium</option>
+  <option>High</option>
+</select>
 <button class="add" onclick="addTask()">Add</button>
 <ul id="list"></ul>
 </div>
 
+<!-- Timer -->
 <div class="card">
-<h3>⏱️ Timer</h3>
+<h3>⏱️ Pomodoro</h3>
 <div class="timer" id="timer">25:00</div>
 <button onclick="start()">Start</button>
-<button onclick="reset()">Reset</button>
+<button onclick="breakTime()">Break</button>
 </div>
 
+<!-- Progress -->
 <div class="card">
 <h3>📊 Progress</h3>
-<div class="bar"><div class="fill" id="fill"></div></div>
+<div class="circle" id="circle"><span id="percent">0%</span></div>
+</div>
+
+<!-- Calendar -->
+<div class="card">
+<h3>📅 Calendar</h3>
+<div class="calendar" id="calendar"></div>
 </div>
 
 </div>
 </div>
+
+<audio id="bgm" loop>
+  <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3">
+</audio>
 
 <script>
 let tasks=JSON.parse(localStorage.getItem("tasks"))||[];
@@ -183,20 +205,23 @@ function render(){
     let li=document.createElement("li");
     li.innerHTML=`
       <span onclick="toggle(${i})" class="${t.done?'done':''}">
-      ${t.text}</span>
+      ${t.text} (${t.priority})</span>
       <button onclick="del(${i})">❌</button>`;
     list.appendChild(li);
   });
 
   let percent=tasks.length?(done/tasks.length)*100:0;
-  document.getElementById("fill").style.width=percent+"%";
+  document.getElementById("percent").innerText=Math.round(percent)+"%";
+  document.getElementById("circle").style.background=
+    `conic-gradient(#3b82f6 ${percent}%,#444 ${percent}%)`;
 }
 
 function addTask(){
-  let input=document.getElementById("taskInput");
-  if(!input.value)return;
-  tasks.push({text:input.value,done:false});
-  input.value="";
+  let t=document.getElementById("taskInput");
+  let p=document.getElementById("priority").value;
+  if(!t.value)return;
+  tasks.push({text:t.value,priority:p,done:false});
+  t.value="";
   save();render();
 }
 
@@ -215,13 +240,34 @@ function start(){
     if(time<=0)clearInterval(intv);
   },1000);
 }
-function reset(){time=1500;document.getElementById("timer").innerText="25:00";}
+function breakTime(){
+  time=300;
+}
+
+/* Calendar */
+function loadCalendar(){
+  let cal=document.getElementById("calendar");
+  for(let i=1;i<=30;i++){
+    let d=document.createElement("div");
+    d.className="day";
+    d.innerText=i;
+    cal.appendChild(d);
+  }
+}
 
 /* Theme */
 function toggleTheme(){
   document.body.classList.toggle("light");
 }
 
+/* Sound */
+function toggleSound(){
+  let audio=document.getElementById("bgm");
+  if(audio.paused) audio.play();
+  else audio.pause();
+}
+
+loadCalendar();
 render();
 </script>
 
